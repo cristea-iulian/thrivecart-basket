@@ -1,15 +1,12 @@
-# Acme Widget Co basket
+# Acme Widget Co
 
-ThriveCart coding exercise — PHP backend and React/TypeScript frontend.
+PHP basket with a simple React/TypeScript UI. You can add products, see quantities and get the total with discounts and delivery included.
 
-**Status: environment scaffold only. Basket logic, integration and business tests are not implemented.**
+## Setup
 
-## Requirements
+You need PHP 8.2+, Composer and Node.js 20.19+ or 22.12+.
 
-- PHP 8.2+ and Composer (8.2 is a local setup choice; the assignment only asks for modern PHP)
-- Node.js 20.19+ or 22.12+ and npm
-
-## Install
+From the project root:
 
 ```sh
 composer install
@@ -19,66 +16,54 @@ npm ci
 
 ## Run
 
-From the repository root, in separate terminals:
+Open two terminals. In the first, from the project root:
 
 ```sh
 composer serve
 ```
+
+In the second, from the project root:
 
 ```sh
 cd frontend
 npm run dev
 ```
 
-Open the URL printed by Vite (normally http://127.0.0.1:5173).
-The PHP placeholder runs at http://127.0.0.1:8080. Vite proxies `/api` to PHP.
+Open http://127.0.0.1:5173 (or the URL Vite prints).
+PHP runs on port 8081. Both processes need to stay running.
 
-## Checks
+## Tests
+
+From the project root:
 
 ```sh
 composer test
+```
+
+To check TypeScript and build the frontend:
+
+```sh
 cd frontend
 npm run build
 ```
 
-No business tests have been written yet; PHPUnit currently reports an empty suite.
+Tests cover the examples from the brief, delivery thresholds, discount pairs, unknown products and an empty basket.
 
-## Assignment
+## How it works
 
-Implement a basket initialised with a product catalogue, delivery rules and offers.
-Provide `add(productCode)` and `total()`.
+`Basket` receives a product catalogue, a delivery rule and optional offers. `add()` takes a product code and `total()` returns the total in cents.
 
-| Product | Code | Price |
-| --- | --- | --- |
-| Red Widget | R01 | $32.95 |
-| Green Widget | G01 | $24.95 |
-| Blue Widget | B01 | $7.95 |
+The offer and delivery rules are separate from the basket so they can be changed without changing its calculation flow.
 
-Delivery: under $50 → $4.95; $50 to under $90 → $2.95; $90+ → free.
-Offer: buy one red widget, get the second half price.
+React keeps the selected product codes and sends them to PHP. Prices, discounts and delivery are calculated on the backend. There is no database or session; refreshing the page clears the basket.
 
-| Products | Expected total |
-| --- | --- |
-| B01, G01 | $37.85 |
-| R01, R01 | $54.37 |
-| R01, G01 | $60.85 |
-| B01, B01, R01, R01, R01 | $98.27 |
+## Assumptions
 
-Build a simple React/TypeScript UI. Explain design and assumptions here when implemented.
-The brief expects a public GitHub repository. The email recommends 2–4 hours and highlights separation of concerns, small interfaces/components, dependency injection, extensible strategies and meaningful commits.
+- Money is stored as integer cents.
+- The half-price item is rounded down: half of $32.95 becomes $16.47. This matches the supplied totals.
+- Delivery is based on the subtotal after discounts.
+- An empty basket costs $0, with no delivery charge.
+- Unknown product codes are rejected.
+- Multiple offers add their discounts. If offers target the same products, we would need to agree on whether they can be combined.
 
-## Decisions to document during implementation
-
-- Money representation and rounding: the supplied examples include half-cent discounts.
-- Whether delivery thresholds use the discounted subtotal.
-- Invalid product codes and empty-basket behaviour.
-- How multiple offers compose.
-
-## Implementation checklist
-
-- [ ] Catalogue and basket model
-- [ ] Offer and delivery rules
-- [ ] Four supplied examples and useful edge-case tests
-- [ ] PHP endpoint and React basket interface
-- [ ] Document assumptions and trade-offs
-- [ ] Review, commit and submit the completed repository
+The UI only adds products and shows the basket. I kept checkout, removal and persistence out of scope.
