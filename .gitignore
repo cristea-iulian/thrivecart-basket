@@ -1,0 +1,6 @@
+/vendor/
+/frontend/node_modules/
+/frontend/dist/
+/.phpunit.cache/
+.env
+.DS_Store
